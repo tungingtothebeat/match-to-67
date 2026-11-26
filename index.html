@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>67 Match</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            --page: #0d0f14;
+            --dot: #1f2430;
+            --box: #1a1e27;
+            --box-border: #343b4b;
+            --handle: #242a36;
+            --text: #eef1f7;
+            --muted: #8b94a8;
+            --display: #0f1218;
+            --op: #3b4a78;
+            --accent: #3ddc97;
+            --accent-text: #08130e;
+            box-sizing: border-box;
+        }
+        html, body { height: 100%; margin: 0; }
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            box-sizing: border-box;
+            background-color: var(--page);
+            background-image: radial-gradient(var(--dot) 1px, transparent 1px);
+            background-size: 22px 22px;
+            color: var(--text);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        }
+        .box {
+            width: 100%;
+            max-width: 560px;
+            background: var(--box);
+            border: 2px solid var(--box-border);
+            border-radius: 18px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            overflow: hidden;
+        }
+        .handle {
+            padding: 12px 16px;
+            background: var(--handle);
+            border-bottom: 2px solid var(--box-border);
+            color: var(--muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .body { padding: 20px; }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--muted);
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+        input {
+            box-sizing: border-box;
+            background: var(--display);
+            color: var(--text);
+            border: 2px solid var(--box-border);
+            border-radius: 12px;
+            font-size: 1.7rem;
+            text-align: center;
+            font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        }
+        #input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 20px;
+        }
+        #input:focus { outline: none; border-color: var(--accent); }
+        .equation {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .equation input[readonly] {
+            flex: 1 1 0;
+            min-width: 0;
+            padding: 14px 4px;
+            cursor: default;
+        }
+        .equation input.op {
+            flex: 0 0 44px;
+            padding: 14px 0;
+            background: var(--op);
+            border-color: var(--op);
+        }
+        .equation input.result {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--accent-text);
+            font-weight: 700;
+        }
+        input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        #input::placeholder { color: var(--muted); }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <div class="handle">67 Match</div>
+        <div class="body">
+            <label for="input">Input any number</label>
+            <input oninput="findMatch()" type="number" value="" id="input" placeholder="0">
+            <div class="equation">
+                <input readonly value="" id="one" aria-label="Your number">
+                <input readonly value="+" class="op" aria-hidden="true" tabindex="-1">
+                <input readonly value="" id="two" aria-label="Number needed">
+                <input readonly value="=" class="op" aria-hidden="true" tabindex="-1">
+                <input readonly value="67" class="result" aria-label="Target">
+            </div>
+        </div>
+    </div>
+    <script>
+        const input = document.getElementById("input");
+        const one = document.getElementById("one");
+        const two = document.getElementById("two");
+
+        function findMatch() {
+            if (input.value === "") {
+                one.value = "";
+                two.value = "";
+                return;
+            }
+            one.value = input.value;
+            two.value = Math.round((67 - Number(input.value)) * 1e10) / 1e10;
+        }
+    </script>
+</body>
+</html>
