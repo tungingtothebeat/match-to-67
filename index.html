@@ -16,6 +16,7 @@
             --muted: #8b94a8;
             --display: #0f1218;
             --op: #3b4a78;
+            --op-hover: #4a5c94;
             --accent: #3ddc97;
             --accent-text: #08130e;
             box-sizing: border-box;
@@ -60,15 +61,17 @@
             font-size: 0.95rem;
             font-weight: 600;
         }
-        input {
+        input, button {
             box-sizing: border-box;
+            font-size: 1.7rem;
+            text-align: center;
+            font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+        }
+        input {
             background: var(--display);
             color: var(--text);
             border: 2px solid var(--box-border);
             border-radius: 12px;
-            font-size: 1.7rem;
-            text-align: center;
-            font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
         }
         #input {
             width: 100%;
@@ -76,34 +79,50 @@
             margin-bottom: 20px;
         }
         #input:focus { outline: none; border-color: var(--accent); }
+        #input::placeholder { color: var(--muted); }
+
         .equation {
             display: flex;
-            align-items: center;
+            align-items: stretch;
             justify-content: center;
             gap: 8px;
         }
-        .equation input[readonly] {
+        .equation input {
             flex: 1 1 0;
             min-width: 0;
             padding: 14px 4px;
-            cursor: default;
         }
-        .equation input.op {
-            flex: 0 0 44px;
-            padding: 14px 0;
+        .equation input[readonly] { cursor: default; }
+        .equation input:focus { outline: none; }
+
+        .equation .op {
+            flex: 0 0 52px;
+            padding: 0;
             background: var(--op);
-            border-color: var(--op);
+            border: 2px solid var(--op);
+            border-radius: 12px;
+            color: var(--text);
+            font-weight: 600;
         }
+        button.op {
+            cursor: pointer;
+            transition: background 0.12s, border-color 0.12s, transform 0.06s;
+        }
+        button.op:hover { background: var(--op-hover); border-color: var(--op-hover); }
+        button.op:active { transform: scale(0.94); }
+        button.op:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
         .equation input.result {
             background: var(--accent);
             border-color: var(--accent);
             color: var(--accent-text);
             font-weight: 700;
         }
+        .equation input.result:focus { border-color: var(--text); }
+
         input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        #input::placeholder { color: var(--muted); }
     </style>
 </head>
 <body>
@@ -114,10 +133,10 @@
             <input oninput="findMatch()" type="number" value="" id="input" placeholder="0">
             <div class="equation">
                 <input readonly value="" id="one" aria-label="Your number">
-                <input readonly value="+" class="op" aria-hidden="true" tabindex="-1">
+                <button type="button" class="op" id="op" onclick="nextop()" aria-label="Change operator" title="Click to change operator">+</button>
                 <input readonly value="" id="two" aria-label="Number needed">
                 <input readonly value="=" class="op" aria-hidden="true" tabindex="-1">
-                <input readonly value="67" class="result" aria-label="Target">
+                <input oninput="findMatch()" type="number" value="67" class="result" aria-label="Target" id="goal">
             </div>
         </div>
     </div>
@@ -125,6 +144,16 @@
         const input = document.getElementById("input");
         const one = document.getElementById("one");
         const two = document.getElementById("two");
+        const op = document.getElementById("op");
+        const goal = document.getElementById("goal");
+
+        const ops = [
+            { symbol: "+", solve: function (a, g) { return g - a; } },
+            { symbol: "−", solve: function (a, g) { return a - g; } },
+            { symbol: "×", solve: function (a, g) { return g / a; } },
+            { symbol: "÷", solve: function (a, g) { return a / g; } }
+        ];
+        let opIndex = 0;
 
         function findMatch() {
             if (input.value === "") {
@@ -133,7 +162,18 @@
                 return;
             }
             one.value = input.value;
-            two.value = Math.round((67 - Number(input.value)) * 1e10) / 1e10;
+            if (goal.value === "") {
+                two.value = "";
+                return;
+            }
+            const result = ops[opIndex].solve(Number(input.value), Number(goal.value));
+            two.value = Number.isFinite(result) ? Math.round(result * 1e10) / 1e10 : "—";
+        }
+
+        function nextop() {
+            opIndex = (opIndex + 1) % ops.length;
+            op.textContent = ops[opIndex].symbol;
+            findMatch();
         }
     </script>
 </body>
